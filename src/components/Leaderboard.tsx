@@ -1,17 +1,20 @@
 import { ArrowLeft, Trophy } from 'lucide-react';
 import { useStore } from '../store';
 import { motion } from 'motion/react';
+import { i18n } from '../i18n';
+import { playClick } from '../audio';
 
 export function Leaderboard({ onBack }: { onBack: () => void }) {
-  const { highScore } = useStore();
+  const { highScore, language } = useStore();
+  const t = i18n[language];
 
   return (
     <div className="absolute inset-0 bg-transparent flex flex-col z-40">
       <div className="p-4 flex items-center border-b border-white/10 bg-[#050212]/80 backdrop-blur-xl sticky top-0">
-        <button onClick={onBack} className="p-2 -ml-2 rounded-full bg-white/5 hover:bg-white/10 border border-white/5 transition">
+        <button onClick={() => { playClick(); onBack(); }} className="p-2 -ml-2 rounded-full bg-white/5 hover:bg-white/10 border border-white/5 transition">
           <ArrowLeft className="w-6 h-6 text-gray-300" />
         </button>
-        <span className="font-bold text-xl ml-4 uppercase tracking-widest text-transparent bg-clip-text bg-gradient-to-r from-pink-400 to-red-500">Rankings</span>
+        <span className="font-bold text-xl ml-4 uppercase tracking-widest text-transparent bg-clip-text bg-gradient-to-r from-pink-400 to-red-500">{t.rankings}</span>
       </div>
 
       <div className="flex-1 p-6 flex flex-col items-center">
@@ -23,13 +26,13 @@ export function Leaderboard({ onBack }: { onBack: () => void }) {
           <div className="absolute top-0 inset-x-0 h-32 bg-gradient-to-b from-pink-500/10 to-transparent pointer-events-none"></div>
           
           <Trophy className="w-20 h-20 text-pink-500 mx-auto mb-6 drop-shadow-[0_0_15px_rgba(236,72,153,0.6)] relative z-10" />
-          <h2 className="text-[10px] font-bold text-gray-400 uppercase tracking-[0.2em] mb-2 relative z-10">Your Best Score</h2>
+          <h2 className="text-[10px] font-bold text-gray-400 uppercase tracking-[0.2em] mb-2 relative z-10">{t.topScore}</h2>
           <div className="text-7xl font-black text-transparent bg-clip-text bg-gradient-to-b from-pink-300 to-pink-600 drop-shadow-sm font-mono mt-4 relative z-10">
             {highScore}
           </div>
           
-          <div className="mt-12 text-xs font-medium text-pink-300/80 bg-pink-500/10 border border-pink-500/20 p-4 rounded-xl relative z-10 uppercase tracking-widest">
-            Destroy 52 couples to awaken the truth.
+          <div className="mt-12 text-xs font-medium text-pink-300/80 bg-pink-500/10 border border-pink-500/20 p-4 rounded-xl relative z-10 uppercase tracking-widest leading-relaxed">
+            {t.leaderboardTip}
           </div>
         </motion.div>
         

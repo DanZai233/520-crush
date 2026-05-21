@@ -1,5 +1,7 @@
 import { useEffect, useState } from 'react';
 
+type Language = 'zh' | 'en';
+
 type StoreState = {
   highScore: number;
   coins: number;
@@ -7,6 +9,7 @@ type StoreState = {
   unlockedScenes: string[];
   currentSkinId: string;
   currentSceneId: string;
+  language: Language;
 };
 
 const defaultState: StoreState = {
@@ -16,6 +19,7 @@ const defaultState: StoreState = {
   unlockedScenes: ['city'],
   currentSkinId: 'classic',
   currentSceneId: 'city',
+  language: (navigator.language || 'zh').startsWith('zh') ? 'zh' : 'en',
 };
 
 let memoryState: StoreState = { ...defaultState };

@@ -1,12 +1,25 @@
-import { Play, Store, Trophy } from 'lucide-react';
-import { useStore } from '../store';
+import { Play, Store, Trophy, Globe } from 'lucide-react';
+import { useStore, store } from '../store';
 import { motion } from 'motion/react';
+import { i18n } from '../i18n';
+import { playClick } from '../audio';
 
 export function MainMenu({ onPlay, onShop, onLeaderboard }: { onPlay: () => void, onShop: () => void, onLeaderboard: () => void }) {
-  const { coins, highScore } = useStore();
+  const { coins, highScore, language } = useStore();
+  const t = i18n[language];
 
   return (
     <div className="absolute inset-0 flex flex-col items-center justify-center p-6 bg-transparent">
+      <button 
+        onClick={() => {
+          playClick();
+          store.setState({ language: language === 'zh' ? 'en' : 'zh' });
+        }}
+        className="absolute top-6 right-6 p-3 bg-white/5 hover:bg-white/10 rounded-full border border-white/10 text-white/70 hover:text-white transition"
+      >
+        <Globe className="w-5 h-5" />
+      </button>
+
       <motion.div 
         initial={{ scale: 0.8, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
@@ -19,48 +32,48 @@ export function MainMenu({ onPlay, onShop, onLeaderboard }: { onPlay: () => void
         </div>
         <div>
           <h1 className="text-5xl font-black tracking-tighter text-transparent bg-clip-text bg-gradient-to-r from-pink-400 to-red-500 drop-shadow-lg">
-            520 撞大运
+            {t.title}
           </h1>
-          <p className="text-xs uppercase tracking-[0.2em] text-pink-300/60 mt-2">Lover's Collision Simulator</p>
+          <p className="text-xs uppercase tracking-[0.2em] text-pink-300/60 mt-2">{t.subtitle}</p>
         </div>
       </motion.div>
 
       <div className="flex gap-4 mb-12 text-center bg-slate-900/50 backdrop-blur-xl border border-white/10 px-6 py-4 rounded-3xl shadow-xl">
         <div className="min-w-20">
-          <p className="text-[10px] text-gray-400 uppercase tracking-widest mb-1">Top Score</p>
+          <p className="text-[10px] text-gray-400 uppercase tracking-widest mb-1">{t.topScore}</p>
           <p className="text-2xl font-bold font-mono text-pink-400">{highScore}</p>
         </div>
         <div className="w-[1px] bg-white/10 self-stretch my-2"></div>
         <div className="min-w-20">
-          <p className="text-[10px] text-gray-400 uppercase tracking-widest mb-1">Coins</p>
+          <p className="text-[10px] text-gray-400 uppercase tracking-widest mb-1">{t.coins}</p>
           <p className="text-2xl font-bold font-mono text-yellow-500">{coins}</p>
         </div>
       </div>
 
       <div className="w-full max-w-xs space-y-4">
         <button 
-          onClick={onPlay}
+          onClick={() => { playClick(); onPlay(); }}
           className="w-full flex items-center justify-center gap-3 bg-gradient-to-r from-pink-600 to-red-600 hover:brightness-110 text-white p-4 rounded-2xl font-bold text-xl uppercase tracking-widest transition-all active:scale-95 shadow-[0_0_20px_rgba(219,39,119,0.3)]"
         >
           <Play className="fill-current w-6 h-6" />
-          <span>GO CRASHING!</span>
+          <span>{t.play}</span>
         </button>
 
         <div className="flex gap-4">
           <button 
-            onClick={onShop}
+            onClick={() => { playClick(); onShop(); }}
             className="flex-1 flex flex-col items-center justify-center gap-2 bg-white/5 backdrop-blur-md hover:bg-white/10 p-4 rounded-2xl transition-all active:scale-95 border border-white/10 text-gray-300 hover:text-white"
           >
             <Store className="w-6 h-6 text-pink-400" />
-            <span className="text-xs font-bold uppercase tracking-wider">Garage</span>
+            <span className="text-xs font-bold uppercase tracking-wider">{t.garage}</span>
           </button>
 
           <button 
-            onClick={onLeaderboard}
+            onClick={() => { playClick(); onLeaderboard(); }}
             className="flex-1 flex flex-col items-center justify-center gap-2 bg-white/5 backdrop-blur-md hover:bg-white/10 p-4 rounded-2xl transition-all active:scale-95 border border-white/10 text-gray-300 hover:text-white"
           >
             <Trophy className="w-6 h-6 text-yellow-500" />
-            <span className="text-xs font-bold uppercase tracking-wider">Rankings</span>
+            <span className="text-xs font-bold uppercase tracking-wider">{t.rankings}</span>
           </button>
         </div>
       </div>
