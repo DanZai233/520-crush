@@ -498,17 +498,23 @@ export function Game({ onGameOver, onMenu }: { onGameOver: (score: number) => vo
                </div>
             )}
 
-            <button 
-              onClick={(e) => { 
-                e.stopPropagation(); 
-                playClick(); 
-                setGameSpeedMultiplier(prev => prev === 1 ? 1.5 : (prev === 1.5 ? 2 : (prev === 2 ? 0.5 : 1))); 
-              }}
-              className="bg-white/5 backdrop-blur-md hover:bg-white/10 border border-white/10 p-3 rounded-xl transition text-white shadow-lg flex items-center gap-1"
+            <div 
+              className="bg-white/5 backdrop-blur-md border border-white/10 px-3 py-2 rounded-xl text-white shadow-lg flex items-center gap-2"
+              onMouseDown={(e) => e.stopPropagation()}
+              onMouseUp={(e) => e.stopPropagation()}
+              onTouchStart={(e) => e.stopPropagation()}
+              onTouchEnd={(e) => e.stopPropagation()}
             >
-              <FastForward className="w-5 h-5 text-gray-300" />
-              <span className="text-xs font-bold font-mono text-gray-300">x{gameSpeedMultiplier}</span>
-            </button>
+              <FastForward className="w-4 h-4 text-gray-400" />
+              <input 
+                type="range" 
+                min="0.1" max="2" step="0.1" 
+                value={gameSpeedMultiplier}
+                onChange={(e) => setGameSpeedMultiplier(parseFloat(e.target.value))}
+                className="w-16 sm:w-24 accent-pink-500 h-1 bg-white/20 rounded-lg cursor-pointer"
+              />
+              <span className="text-[10px] sm:text-xs font-bold font-mono text-gray-300 w-6 sm:w-8 text-right">x{gameSpeedMultiplier.toFixed(1)}</span>
+            </div>
 
             <button 
               onClick={(e) => { e.stopPropagation(); playClick(); setIsAutoPilot(!isAutoPilot); }}
