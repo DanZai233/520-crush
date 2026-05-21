@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useStore, store } from '../store';
 import { SCENES, SKINS } from '../types';
-import { Pause, Play, Zap, Bot } from 'lucide-react';
+import { Pause, Play, Zap, Bot, FastForward } from 'lucide-react';
 import { i18n } from '../i18n';
 import { playCrash, playHitObstacle, playCoin, playPowerup, playClick, playGameOver } from '../audio';
 
@@ -34,6 +34,7 @@ export function Game({ onGameOver, onMenu }: { onGameOver: (score: number) => vo
   
   const [isPaused, setIsPaused] = useState(false);
   const [isAutoPilot, setIsAutoPilot] = useState(false);
+  const [gameSpeedMultiplier, setGameSpeedMultiplier] = useState(1);
   const [score, setScore] = useState(0);
   const [sessionCoins, setSessionCoins] = useState(0);
 
@@ -55,11 +56,16 @@ export function Game({ onGameOver, onMenu }: { onGameOver: (score: number) => vo
     combo: 0,
     screenShake: 0,
     isAutoPilot: false,
+    gameSpeedMultiplier: 1,
   });
 
   useEffect(() => {
     state.current.isAutoPilot = isAutoPilot;
   }, [isAutoPilot]);
+
+  useEffect(() => {
+    state.current.gameSpeedMultiplier = gameSpeedMultiplier;
+  }, [gameSpeedMultiplier]);
 
   const requestRef = useRef<number>();
   const lastTimeRef = useRef<number>();
@@ -156,12 +162,13 @@ export function Game({ onGameOver, onMenu }: { onGameOver: (score: number) => vo
 
     const update = (time: number) => {
       if (!lastTimeRef.current) lastTimeRef.current = time;
-      const deltaTime = (time - lastTimeRef.current) / 1000;
+      const realDeltaTime = (time - lastTimeRef.current) / 1000;
+      const deltaTime = realDeltaTime * state.current.gameSpeedMultiplier;
       lastTimeRef.current = time;
 
       if (!isPaused && !state.current.gameOver) {
         // smooth train movement
-        state.current.renderX += (state.current.track - state.current.renderX) * 15 * deltaTime;
+        state.current.renderX += (state.current.track - state.current.renderX) * 15 * realDeltaTime;
         
         if (state.current.isAutoPilot) {
            let bestTrack: Track = state.current.track;
@@ -490,6 +497,18 @@ export function Game({ onGameOver, onMenu }: { onGameOver: (score: number) => vo
                  <span className="text-xs uppercase tracking-widest">{t.powerMax}</span>
                </div>
             )}
+
+            <button 
+              onClick={(e) => { 
+                e.stopPropagation(); 
+                playClick(); 
+                setGameSpeedMultiplier(prev => prev === 1 ? 1.5 : (prev === 1.5 ? 2 : (prev === 2 ? 0.5 : 1))); 
+              }}
+              className="bg-white/5 backdrop-blur-md hover:bg-white/10 border border-white/10 p-3 rounded-xl transition text-white shadow-lg flex items-center gap-1"
+            >
+              <FastForward className="w-5 h-5 text-gray-300" />
+              <span className="text-xs font-bold font-mono text-gray-300">x{gameSpeedMultiplier}</span>
+            </button>
 
             <button 
               onClick={(e) => { e.stopPropagation(); playClick(); setIsAutoPilot(!isAutoPilot); }}

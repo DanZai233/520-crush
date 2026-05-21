@@ -28,6 +28,7 @@ export const i18n = {
     combo: '连击',
     comboBreak: '断连',
     autoPilot: '自动驾驶',
+    speed: '速度',
     hitTexts: ['秀恩爱！', '死得快！', '吃我泥头车！', '不准牵手！', '单身万岁！', '分手快乐！', '给我让开！', '创飞你！']
   },
   en: {
@@ -59,6 +60,7 @@ export const i18n = {
     combo: 'COMBO',
     comboBreak: 'MISS',
     autoPilot: 'AUTO PILOT',
+    speed: 'SPEED',
     hitTexts: ['Get a room!', 'Single power!', 'Take that!', 'No PDA!', 'Break up!', 'Bonk!', 'Out of my way!', 'YEET!']
   }
 };
