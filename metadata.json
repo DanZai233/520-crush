@@ -1,0 +1,6 @@
+{
+  "name": "520撞大运",
+  "description": "520模拟火车撞飞情侣的像素风休闲跑酷小游戏！多轨道滑动避险，超多皮肤场景等你解锁。",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
