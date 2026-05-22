@@ -34,7 +34,7 @@ export function Game({ onGameOver, onMenu }: { onGameOver: (score: number) => vo
   
   const [isPaused, setIsPaused] = useState(false);
   const [isAutoPilot, setIsAutoPilot] = useState(false);
-  const [gameSpeedMultiplier, setGameSpeedMultiplier] = useState(1);
+  const [gameSpeedMultiplier, setGameSpeedMultiplier] = useState(0.2);
   const [score, setScore] = useState(0);
   const [sessionCoins, setSessionCoins] = useState(0);
 
@@ -56,7 +56,7 @@ export function Game({ onGameOver, onMenu }: { onGameOver: (score: number) => vo
     combo: 0,
     screenShake: 0,
     isAutoPilot: false,
-    gameSpeedMultiplier: 1,
+    gameSpeedMultiplier: 0.2,
   });
 
   useEffect(() => {
@@ -123,11 +123,11 @@ export function Game({ onGameOver, onMenu }: { onGameOver: (score: number) => vo
       // Logic for spawning stuff in 3 tracks
       const tracks: Track[] = [0, 1, 2];
       
-      // We must leave at least one track open
-      const emptyTrack = Math.floor(Math.random() * 3);
+      // Determine which single track can contain an obstacle
+      const obstacleTrack = Math.floor(Math.random() * 3);
       
       tracks.forEach(track => {
-        if (track !== emptyTrack && Math.random() > 0.4) {
+        if (track === obstacleTrack && Math.random() > 0.2) {
           // spawn obstacle
           state.current.entities.push({
             id: state.current.entityId++,
@@ -173,23 +173,45 @@ export function Game({ onGameOver, onMenu }: { onGameOver: (score: number) => vo
         if (state.current.isAutoPilot) {
            let bestTrack: Track = state.current.track;
            let maxScore = -Infinity;
+           const currentRenderTrack = Math.round(state.current.renderX);
+
            for (let t = 0; t < 3; t++) {
-             // Add a tiny bit of score for the current track to avoid unnecessary switching
+             // Add a tiny bit of score for the current target track to avoid jitter
              let trackScore = (t === state.current.track) ? 0.1 : 0;
+             
              for (const ent of state.current.entities) {
-                if (ent.hit || ent.track !== t) continue;
-                if (ent.y > -0.2 && ent.y < 0.8) {
-                    const dist = 0.8 - ent.y;
-                    const weight = 1 / (dist + 0.1);
-                    if (ent.type === 'obstacle') {
-                       trackScore += state.current.invincibleTime > 0 ? 20 * weight : -1000 * weight;
-                    } else if (ent.type === 'couple') {
-                       trackScore += 10 * weight;
-                    } else if (ent.type === 'coin') {
-                       trackScore += 5 * weight;
-                    } else if (ent.type === 'invincible') {
-                       trackScore += 8 * weight;
+                if (ent.hit) continue;
+                
+                // Assess items IN the target track `t`
+                if (ent.track === t) {
+                    if (ent.y > -0.2 && ent.y < 1.0) {
+                        const dist = Math.abs(0.8 - ent.y);
+                        // Prevent division by zero and make it super high when close
+                        const weight = 1 / (dist + 0.05); 
+                        if (ent.type === 'obstacle') {
+                           trackScore += state.current.invincibleTime > 0 ? 20 * weight : -1000 * weight;
+                        } else if (ent.type === 'couple') {
+                           trackScore += 10 * weight;
+                        } else if (ent.type === 'coin') {
+                           trackScore += 5 * weight;
+                        } else if (ent.type === 'invincible') {
+                           trackScore += 8 * weight;
+                        }
                     }
+                }
+                
+                // Assess items WE MUST CROSS to get to target `t` from `currentRenderTrack`
+                if (ent.type === 'obstacle' && state.current.invincibleTime <= 0) {
+                   const minTrack = Math.min(currentRenderTrack, t);
+                   const maxTrack = Math.max(currentRenderTrack, t);
+                   // if the obstacle is strictly between our current position and the target track
+                   if (ent.track > minTrack && ent.track < maxTrack) {
+                       const dist = Math.abs(0.8 - ent.y);
+                       // If it's hitting us RIGHT NOW or very soon, DO NOT cross it!
+                       if (dist < 0.25) {
+                           trackScore -= 5000;
+                       }
+                   }
                 }
              }
              if (trackScore > maxScore) {
